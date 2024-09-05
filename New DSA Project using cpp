@@ -1,0 +1,182 @@
+#include <iostream> 
+#include <vector> 
+#include <string> 
+#include <ctime> 
+ 
+class Book { 
+public: 
+    int id; 
+    std::string title; 
+    std::string author; 
+    bool isAvailable; 
+    std::string borrowerName; 
+    time_t borrowDate; 
+    int borrowDays; 
+ 
+    Book(int id, const std::string& title, const std::string& author) 
+        : id(id), title(title), author(author), isAvailable(true), borrowDays(0) {} 
+}; 
+ 
+class Library { 
+private: 
+    std::vector<Book> books; 
+ 
+    time_t getCurrentDate() { 
+        return time(0); 
+    } 
+ 
+    int calculateFine(time_t borrowDate, int borrowDays) { 
+        time_t currentDate = getCurrentDate(); 
+        double seconds = difftime(currentDate, borrowDate); 
+        int days = static_cast<int>(seconds / (60 * 60 * 24)); 
+        if (days > borrowDays) { 
+            return (days - borrowDays) * 10; 
+        } 
+        return 0; 
+    } 
+ 
+public: 
+    void addBook(int id, const std::string& title, const std::string& author) { 
+        books.emplace_back(id, title, author); 
+    } 
+ 
+    void displayBooks() const { 
+        for (const auto& book : books) { 
+            std::cout << "ID: " << book.id << ", Title: " << book.title  
+                      << ", Author: " << book.author << ", Available: "  
+                      << (book.isAvailable ? "Yes" : "No"); 
+            if (!book.isAvailable) { 
+                std::cout << ", Borrower: " << book.borrowerName; 
+            } 
+            std::cout << std::endl; 
+        } 
+    } 
+ 
+    void borrowBook(int id) { 
+        for (auto& book : books) { 
+            if (book.id == id) { 
+                if (book.isAvailable) { 
+                    std::cout << "Enter your name: "; 
+                    std::cin >> book.borrowerName; 
+                    std::cout << "Enter the number of days to borrow: "; 
+                    std::cin >> book.borrowDays; 
+                    book.isAvailable = false; 
+                    book.borrowDate = getCurrentDate(); 
+                    std::cout << "You have borrowed the book: ID " << book.id << "\nTitle: " 
+<< book.title << std::endl; 
+                } else { 
+                    std::cout << "The book is currently not available." << std::endl; 
+                } 
+                return; 
+            } 
+        } 
+        std::cout << "Book not found!" << std::endl; 
+    } 
+ 
+    void returnBook(int id) { 
+        for (auto& book : books) { 
+            if (book.id == id) { 
+                if (!book.isAvailable) { 
+                    int fine = calculateFine(book.borrowDate, book.borrowDays); 
+                    if (fine > 0) { 
+                        std::cout << "You have a fine of Rs. " << fine << " for late return." << 
+std::endl; 
+                    } 
+                    book.isAvailable = true; 
+                    book.borrowerName = ""; 
+                    book.borrowDays = 0; 
+                    std::cout << "You have returned the book: ID " << book.id << "\nTitle: " << 
+book.title << std::endl; 
+                } else { 
+                    std::cout << "The book was not borrowed." << std::endl; 
+                } 
+                return; 
+            } 
+        } 
+        std::cout << "Book not found!" << std::endl; 
+    } 
+ 
+    void displayCurrentStatus() const { 
+        for (const auto& book : books) { 
+            if (!book.isAvailable) { 
+                time_t currentDate = time(0); 
+                double seconds = difftime(currentDate, book.borrowDate); 
+                int daysBorrowed = static_cast<int>(seconds / (60 * 60 * 24)); 
+                std::cout << "ID: " << book.id << " \nTitle: " << book.title  
+                          << "\nBorrower: " << book.borrowerName  
+                          << "\nDays Borrowed: " << daysBorrowed  
+                          << "\nReturn in: " << (book.borrowDays - daysBorrowed) << " days" << 
+std::endl; 
+            } 
+        } 
+    } 
+}; 
+ 
+int main() { 
+    Library lib; 
+ 
+    lib.addBook(1, "The Great Gatsby", "F. Scott Fitzgerald"); 
+    lib.addBook(2, "1984", "George Orwell"); 
+    lib.addBook(3, "To Kill a Mockingbird", "Harper Lee"); 
+    lib.addBook(4, "Everything is fucked up", "Mark Manson"); 
+    lib.addBook(5, "Alice in Wonderland", "Lewis Carrol"); 
+    lib.addBook(6, "Adventures of Tom Sawyer", "Mark Twain"); 
+    lib.addBook(7, "The Merchant of Venice", "William Shakespeare"); 
+ 
+    std::cout << "Library Books:" << std::endl; 
+    
+std::cout<<"================================================================="<<std::endl; 
+    std::cout<<std::endl; 
+    lib.displayBooks(); 
+    std::cout<<std::endl; 
+    
+std::cout<<"================================================================="<<std::endl; 
+ 
+    int choice, id; 
+    while (true) { 
+    
+ std::cout<<"=========================================================="<<std::endl; 
+        std::cout << "\nEnter 1 to borrow a book, \nEnter 2 to return a book, \nEnter 3 to check current status of borrowed books, \nEnter 4 Check availability of all Library Books, \nEnter 0 to exit "<<std::endl; 
+        
+std::cout<<"=========================================================="
+ <<std::endl; 
+  std::cout<<std::endl; 
+  std::cout<<std::endl; 
+  std::cout<<"Enter Your Choice: "; 
+  std::cin >> choice; 
+ 
+        if (choice == 0) break; 
+ 
+        if (choice == 1) { 
+            std::cout << "Enter the book ID: "; 
+            std::cin >> id; 
+            lib.borrowBook(id); 
+        } else if (choice == 2) { 
+            std::cout << "Enter the book ID: "; 
+            std::cin >> id; 
+            lib.returnBook(id); 
+        } else if (choice == 3) { 
+   
+         std::cout<<"-------------------------------------------"<<std::endl; 
+         std::cout<<"Borrowed Books:"<<std::endl; 
+            lib.displayCurrentStatus(); 
+            std::cout<<std::endl; 
+            std::cout<<"--------------------------------------------"<<std::endl; 
+        } 
+        else if(choice == 4) { 
+   
+            std::cout<<"--------------------------------------------"<<std::endl; 
+            std::cout<<std::endl; 
+            std::cout<<"Present Status of All Books: "<<std::endl; 
+            lib.displayBooks(); 
+            std::cout<<std::endl; 
+            std::cout<<"--------------------------------------------"<<std::endl; 
+        } else { 
+            std::cout << "Invalid choice!" << std::endl; 
+        } 
+ 
+        
+    } 
+ 
+    return 0; 
+} 
